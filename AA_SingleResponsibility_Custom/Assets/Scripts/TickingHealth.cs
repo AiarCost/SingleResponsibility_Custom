@@ -10,6 +10,7 @@ public class TickingHealth: MonoBehaviour, IHealth
     [SerializeField] private int TickAmount = 8;
 
     private int currentHealth;
+    private bool CharacterDied;
 
 
     public event Action<float> OnHPPctChanged = delegate (float f) { };
@@ -29,27 +30,29 @@ public class TickingHealth: MonoBehaviour, IHealth
  
     public void TakeDamage(int amount)
     {
-        Debug.Log("Take Damage Ticking!");
         for(int x = 1; x <= TickAmount; x++)
         {
             Invoke("TickingDamage", ((float)x / 2));
-        }
-
-        if (currentHealth <= 0)
-        {
-            OnDied();
         }
     }
 
     public void TickingDamage()
     {
-        currentHealth -= TickPerHealth;
+        if (CharacterDied)
+        {
 
-        OnHPPctChanged(CurrentHpPct);
-
-        if(currentHealth <= 0)
+            return;
+        }
+        else if(currentHealth <= 0)
         {
             OnDied();
+            CharacterDied = true;
+            return;
+        }
+        else
+        {
+            currentHealth -= TickPerHealth;
+            OnHPPctChanged(CurrentHpPct);
         }
     }
 
